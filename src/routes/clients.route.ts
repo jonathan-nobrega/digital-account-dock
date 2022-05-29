@@ -36,7 +36,7 @@ router.get('/', async (req, res) => {
 });
 
 /**
- * GET - Read a specific record from Clients
+ * GET - Read a specific record from Clients AAAARRUMMMAAAAAR
  */
 router.get('/:clientId', async (req: any, res) => {
     try {

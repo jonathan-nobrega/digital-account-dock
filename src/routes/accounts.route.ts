@@ -26,11 +26,27 @@ router.use(cors({ origin: true }))
 // Rotas basicas
 
 // get todas accounts
-// get accounts especifica
-
-// criar account
 /**
- * POST - Create a new record at Clients
+ * GET - Read all Accounts
+ */
+router.get('/', async (req, res) => {
+    try {
+        let result: DocumentData[] = []
+        await getDocs(collection(db, 'accounts'))
+            .then(async rawData => {
+                rawData.forEach(a => {
+                    let record = a.data()
+                    result.push(record)
+                })
+            })
+        res.status(200).send(result)
+    } catch (err) {
+        res.status(400).send(err)
+    }
+});
+
+/**
+ * POST - Create a new record at Accounts
  */
 router.post('/', async (req: { body: accountInterface }, res) => {
     try {
@@ -39,52 +55,81 @@ router.post('/', async (req: { body: accountInterface }, res) => {
         let clientId
         // verifies if client exists
         const clientCheck = (await getDocs(query(collection(db, 'clients'), where('cpf', '==', Number(cpf)))))
-            .forEach(a => {
-                if (a) clientId = a.id
-            })
-        // creating random account/agency number and checking if account already exists
-        const accountAgency = Math.random() * 1000
-        const accountNumber = async function (suggestion?: number): Promise<any> {
-            if (!suggestion) {
-                let random = Math.random() * 1000 + 1000;
-                (await getDocs(query(collection(db, 'accounts'), where('accountNumber', '==', random))))
-                    .forEach(a => { 
-                        if (a) return accountNumber() 
-                    })
+            .forEach(a => { if (a) clientId = a.id })
+        // if client exists, create account
+        if (clientId) {
+            // creating random account/agency number and checking if account already exists
+            const accountAgency = Math.round(Math.random() * 1000)
+            const accountNumber = async (suggestion?: number): Promise<Number> => {
+                if (!suggestion) {
+                    let random = Math.round(Math.random() * 10000)
+                    const numberQuery = (await getDocs(query(collection(db, 'accounts'), where('accountNumber', '==', random)))).empty;
+                    return numberQuery ? accountNumber(random) : accountNumber();
+                }
+                return suggestion.valueOf()
             }
-            if (suggestion) return suggestion
+            const accountData = {
+                clientId: clientId,
+                cpf: cpf,
+                balance: balance ? balance : 0,
+                accountNumber: (await accountNumber()).valueOf(),
+                accountAgency: accountAgency,
+                active: true
+            }
+            await addDoc(collection(db, 'accounts'), accountData)
+                .then(a => {
+                    res.status(200).send({
+                        message: `Successful Account creation!`,
+                        data: accountData
+                    })
+                })
+                .catch(err => {
+                    res.status(400).send({
+                        message: `There was an error during Account creation`
+                    })
+                })
+        } else {
+            res.status(404).send({
+                message: `There is no Client with cpf ${cpf}.`
+            })
         }
-        console.log(accountAgency)
-        console.log(accountNumber())
-
-        // // if client exists, create account
-        // if (clientId) {
-        //     await addDoc(collection(db, 'accounts'), {
-        //         clientId: clientId,
-        //         cpf: cpf,
-        //         balance: balance ? balance : 0,
-        //         accountNumber: '',
-        //         accountAgency: accountAgency,
-        //         active: true
-        //     })
-        //     // await deleteDoc(doc(db, "clients", clientId))
-        //     // res.status(200).send({
-        //     //     message: `Successfully deleted Client with CPF ${cpf}`
-        //     // })
-        // } else {
-        //     // res.status(404).send({
-        //     //     message: `There is no Client with cpf ${cpf}.`
-        //     // })
-        // }
-        res.end()
     } catch (err) {
         console.log(err)
         res.status(400).send(err)
     }
+})
+
+/**
+ * DELETE - Deletes an Account using its Number and Agency
+ */
+router.delete('/', async (req, res) => {
+    try {
+        const { accountNumber, accountAgency } = req.body
+        let accountId
+        // verifies if account exists
+        const accountQuery = (await getDocs(query(
+            collection(db, 'accounts'),
+            where('accountNumber', '==', Number(accountNumber)),
+            where('accountAgency', '==', Number(accountAgency))
+        ))).forEach(a => { if (a) accountId = a.id })
+        // if client exists, perform deletion
+        if (accountId) {
+            await deleteDoc(doc(db, "accounts", accountId))
+            res.status(200).send({
+                message: `Successfully deleted Account!`,
+                accountNumber: accountNumber,
+                accountAgency: accountAgency,
+                accountId: accountId
+            })
+        } else {
+            res.status(404).send({
+                message: `There are no Accounts with these credentials.`
+            })
+        }
+    } catch (err) {
+        res.status(400).send(err)
+    }
 });
-
-
-// deletar account
 
 // Rotas requeridas
 // ativar ou inativar a conta
