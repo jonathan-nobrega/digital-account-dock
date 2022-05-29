@@ -1,5 +1,6 @@
 export default interface transactionInterface {
-    accountId: string
+    accountNumber: number
+    accountAgency: number
     amount: Number
     date: Date
     type: 'withdrawal' | 'deposit'

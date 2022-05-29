@@ -8,9 +8,7 @@ import {
 } from 'firebase/firestore';
 import clientInterface from '../models/client.model'
 
-/**
- * Initiallizing Firebase/Firestore credentials and Express Router
- */
+/** Initiallizing Firebase/Firestore credentials and Express Router */
 initializeApp(firebaseConfig);
 const db = getFirestore();
 const router = Router()
