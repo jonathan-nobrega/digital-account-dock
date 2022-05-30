@@ -4,7 +4,7 @@ import firebaseConfig from '../firebaseconfig.json';
 import { initializeApp } from 'firebase/app';
 import {
     getFirestore, collection, doc, getDocs, updateDoc,
-    getDoc, DocumentData, query, where, addDoc, deleteDoc, FieldValue
+    getDoc, DocumentData, query, where, addDoc, deleteDoc, FieldValue, Timestamp
 } from 'firebase/firestore';
 import accountInterface from "../models/account.model";
 import transactionInterface from "../models/transaction.model"
@@ -25,6 +25,7 @@ router.use(cors({ origin: true }))
 /** ---- Challenge Routes ---- */
 /**
  * Activate ou Inactivate Account
+ * If req.body.active == undefined, it will assume to be "true"
  */
 router.post('/active', async (req: { body: accountInterface }, res) => {
     try {
@@ -65,56 +66,60 @@ router.post('/active', async (req: { body: accountInterface }, res) => {
 router.post('/transaction', async (req: { body: transactionInterface }, res) => {
     try {
         const { accountNumber, accountAgency, amount, type } = req.body
-        let accountData: any
-        let today = new Date()
-        // checks todays total withdrawls 
-        let dailyTotal = 0;
-        const sumTotal = (await getDocs(query(
-            collection(db, 'transactions'),
-            where('amount', '==', 123)
-        ))).forEach((a: any) => console.log(a))
+        const todayTimestamp = new Date()
+        const todayDate: string = `${todayTimestamp.getDate()}-${todayTimestamp.getMonth() + 1}-${todayTimestamp.getFullYear()}`;
+        var balance = 0
+        var accountId = ''
 
-        console.log(dailyTotal)
+        // Gets account data
+        var accountData: accountInterface
+        (await getDocs(query(
+            collection(db, 'accounts'),
+            where('accountNumber', '==', Number(accountNumber)),
+            where('accountAgency', '==', Number(accountAgency))
+        ))).forEach(a => {
+            accountId = a.id
+            balance = a.data().balance
+        });
+        // Withdraws operations
+        if (type == 'withdrawal') {
+            // Check today total withdraws
+            var withdraws = 0;
+            (await getDocs(query(
+                collection(db, 'transactions'),
+                where('type', '==', 'withdrawal'),
+                where('date', '==', todayDate))
+            )).forEach(a => {
+                const amount = a.data().amount
+                withdraws += amount
+            })
+            // Validate if withdraw is possible
+            if ((withdraws + Number(amount)) >= 2001) {
+                return res.status(401).send({
+                    message: 'Unouthorized withdrawl: Daily limit is $2000.',
+                    balance: balance
+                })
+            }
+            if (Number(amount) > balance) {
+                return res.status(401).send({
+                    message: `Unouthorized withdrawl: Insufficient funds`,
+                    balance: balance
+                })
+            } else { // Perform withdraw
+                const newBalance = balance - Number(amount)
+                let document = doc(db, "accounts", accountId)
+                await updateDoc(document, { balance: newBalance })
+                const updatedAccount = await (await getDoc(document)).data()
+                res.status(200).send({
+                    message: `Successful transaction!`,
+                    account: updatedAccount
+                })
+            }
+        }
+        // Deposit operations
+        if (type == 'deposit') {
 
-        // verifies if account exists
-        // const accountQuery = (await getDocs(query(
-        //     collection(db, 'accounts'),
-        //     where('accountNumber', '==', Number(accountNumber)),
-        //     where('accountAgency', '==', Number(accountAgency))
-        // ))).forEach(a => { accountData = a.data() })
-
-        // if client account exists, perform transaction
-        // console.log(accountData)
-        // if (accountData) {
-        //     if (type == 'withdrawal' && accountData.balance < amount && amount < 2000 ) {
-        //         const transactionData: transactionInterface = {
-        //             accountNumber: accountNumber,
-        //             accountAgency: accountAgency,
-        //             amount: amount,
-        //             type: type,
-        //             date: new Date()
-        //         }
-
-        //         // make transaction
-        //         const addTransaction = await addDoc(collection(db, 'transactions'), transactionData)
-        //             .then(a => {
-        //                 res.status(200).send({
-        //                     message: `Successful ${type} transaction!`,
-        //                     data: transactionData
-        //                 })
-        //             })
-        //             .catch(err => {
-        //                 res.status(400).send({
-        //                     message: `There was an error during the transaction`
-        //                 })
-        //             })
-        //     }
-        //     if (type == 'withdrawal' && accountData.balance < amount) {
-        //         res.status(401).send({
-        //             message: `Unuficient balance for the withdrawl. Current balance: $${accountData.balance}`,
-        //         })
-        //     }
-        // }
+        }
         res.end()
     } catch (err) {
         res.status(400).send(err)
