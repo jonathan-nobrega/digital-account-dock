@@ -81,6 +81,7 @@ router.post('/transaction', async (req: { body: transactionInterface }, res) => 
             accountId = a.id
             balance = a.data().balance
         });
+
         // Withdraws operations
         if (type == 'withdrawal') {
             // Check today total withdraws
@@ -111,14 +112,21 @@ router.post('/transaction', async (req: { body: transactionInterface }, res) => 
                 await updateDoc(document, { balance: newBalance })
                 const updatedAccount = await (await getDoc(document)).data()
                 res.status(200).send({
-                    message: `Successful transaction!`,
+                    message: `Successful Withdrawl transaction!`,
                     account: updatedAccount
                 })
             }
         }
         // Deposit operations
         if (type == 'deposit') {
-
+            const newBalance = balance + Number(amount)
+            let document = doc(db, "accounts", accountId)
+            await updateDoc(document, { balance: newBalance })
+            const updatedAccount = await (await getDoc(document)).data()
+            res.status(200).send({
+                message: `Successful Deposit transaction!`,
+                account: updatedAccount
+            })
         }
         res.end()
     } catch (err) {
