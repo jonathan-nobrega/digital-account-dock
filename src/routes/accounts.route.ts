@@ -15,7 +15,7 @@ const db = getFirestore();
 const router = Router()
 router.use(cors({ origin: true }))
 
-// exigencias
+// EXIGENCIAS
 // deve poder fazer consulta de extrato por período
 // um portador pode fechar a conta a qualquer momento
 // deve poder executar saque SE conta estiver ativa, tiver saldo e com limite diário de 2000
@@ -23,10 +23,9 @@ router.use(cors({ origin: true }))
 // conta nunca pode ter saldo negativo
 
 /** ---- Challenge Routes ---- */
-/**
- * Activate ou Inactivate Account
- * If req.body.active == undefined, it will assume to be "true"
- */
+
+/** Activate ou Inactivate Account
+ * If req.body.active == undefined, it will assume to be "true" */
 router.post('/active', async (req: { body: accountInterface }, res) => {
     try {
         const { accountNumber, accountAgency, active } = req.body
@@ -60,9 +59,7 @@ router.post('/active', async (req: { body: accountInterface }, res) => {
     }
 });
 
-/**
- * Deposit or withdrawal money on the Account
- */
+/** Deposit or Withdrawal money on the Account */
 router.post('/transaction', async (req: { body: transactionInterface }, res) => {
     try {
         const { accountNumber, accountAgency, amount, type } = req.body
@@ -134,16 +131,35 @@ router.post('/transaction', async (req: { body: transactionInterface }, res) => 
     }
 });
 
-// emitir extrato baseado em período
-
-
-/** -------------------------- */
-
+/** GET - Prints Daily (Ex: 25-12-2022) bank statement */
+router.get('/statement', async (req, res) => {
+    try {
+        const { date } = req.query
+        console.log(date)
+        // if (date == undefined && month == undefined) {
+        if (date == undefined) {
+            res.status(400).send({
+                message: 'Please give a query parameter. Ex: "date=25-12-2022" or "month=12"'
+            })
+        }
+        if (date) {
+            var transactions: DocumentData[] = []
+            const dateQuery = query(collection(db, 'transactions'), where('date', '==', date))
+            const executeQuery = (await getDocs(dateQuery))
+                .forEach(a => { transactions.push(a.data()) })
+            res.status(200).send({
+                message: `Successful statement query for: ${date}`,
+                transactions: transactions
+            })
+        }
+    } catch (err) {
+        res.status(400).send(err)
+    }
+});
 
 /** ---- Basic Routes ---- */
-/**
- * GET - Read all Accounts
- */
+
+/** GET - Read all Accounts */
 router.get('/', async (req, res) => {
     try {
         let result: DocumentData[] = []
@@ -160,9 +176,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-/**
- * POST - Create a new record at Accounts
- */
+/** POST - Create a new record at Accounts */
 router.post('/', async (req: { body: accountInterface }, res) => {
     try {
         const { cpf, balance } = req.body
@@ -214,9 +228,7 @@ router.post('/', async (req: { body: accountInterface }, res) => {
     }
 })
 
-/**
- * DELETE - Deletes an Account using its Number and Agency
- */
+/** DELETE - Deletes an Account using its Number and Agency */
 router.delete('/', async (req, res) => {
     try {
         const { accountNumber, accountAgency } = req.body
@@ -245,8 +257,7 @@ router.delete('/', async (req, res) => {
         res.status(400).send(err)
     }
 });
+
 /** --------------------- */
-
-
 
 module.exports = router

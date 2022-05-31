@@ -14,9 +14,7 @@ const db = getFirestore();
 const router = Router()
 router.use(cors({ origin: true }))
 
-/**
- * GET - Read all records from Clients
- */
+/** GET - Read all records from Clients */
 router.get('/', async (req, res) => {
     try {
         let result: DocumentData[] = []
@@ -33,9 +31,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-/**
- * GET - Read a specific record from Clients AAAARRUMMMAAAAAR
- */
+/** GET - Read a specific record from Clients AAAARRUMMMAAAAAR */
 router.get('/:clientId', async (req: any, res) => {
     try {
         const { clientId } = req.params
@@ -53,9 +49,7 @@ router.get('/:clientId', async (req: any, res) => {
     }
 });
 
-/**
- * POST - Create a new record at Clients
- */
+/** POST - Create a new record at Clients */
 router.post('/', async (req: { body: clientInterface }, res) => {
     try {
         const { name, cpf } = req.body
@@ -95,9 +89,7 @@ router.post('/', async (req: { body: clientInterface }, res) => {
     }
 });
 
-/**
- * DELETE - Deletes a Client using its CPF
- */
+/** DELETE - Deletes a Client using its CPF */
 router.delete('/:cpf', async (req, res) => {
     try {
         const { cpf } = req.params

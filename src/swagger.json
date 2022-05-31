@@ -1,0 +1,352 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "DOCK Challenge | Digital Account",
+        "description": "This is a simple CRUD API application made with Express and documented with Swagger."
+    },
+    "contact": {
+        "name": "Jonathan Moraes",
+        "url": "https://github.com/moraesjon/",
+        "email": "eng.jonathan.moraes@gmail.com"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000/api/",
+            "description": ""
+        }
+    ],
+    "tags": [
+        {
+            "name": "Clients",
+            "description": "Dock's Clients with unique CPF"
+        },
+        {
+            "name": "Accounts",
+            "description": "Dock's Digital Accounts"
+        }
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/clients": {
+            "get": {
+                "tags": [
+                    "Clients"
+                ],
+                "summary": "Read all records from Clients",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Clients"
+                ],
+                "summary": "Creates a new Client",
+                "requestBody": {
+                    "description": "Client Object",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/client"
+                            }
+                        }
+                    }
+                },
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Failed. Bad post data."
+                    }
+                }
+            }
+        },
+        "/clients/{cpf}": {
+            "parameters": [
+                {
+                    "name": "cpf",
+                    "in": "path",
+                    "required": true,
+                    "description": "CPF of the Client",
+                    "type": "number"
+                }
+            ],
+            "get": {
+                "tags": [
+                    "Clients"
+                ],
+                "summary": "Read a specific record from Clients",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "description": "CPF",
+                        "schema": {
+                            "$ref": "#/definitions/Client"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "Failed. Cat not found."
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a Client with its CPF",
+                "tags": [
+                    "Clients"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "cpf",
+                        "required": true,
+                        "description": "Delete Client",
+                        "schema": {
+                            "$ref": "#/definitions/Client"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/id"
+                        }
+                    },
+                    "404": {
+                        "description": "Failed. Cat not found."
+                    }
+                }
+            }
+        },
+        "/accounts": {
+            "get": {
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Read all records from Accounts",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Create an Account",
+                "requestBody": {
+                    "description": "Account object Object",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/account"
+                            }
+                        }
+                    }
+                },
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Failed. Bad post data."
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete an Account",
+                "tags": [
+                    "Accounts"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "cpf",
+                        "required": true,
+                        "description": "Delete Client",
+                        "schema": {
+                            "$ref": "#/definitions/Client"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/id"
+                        }
+                    },
+                    "404": {
+                        "description": "Failed. Cat not found."
+                    }
+                }
+            }
+        },
+        "/accounts/active": {
+            "post": {
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Activate or inactivate an account",
+                "requestBody": {
+                    "description": "Account object Object",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/account"
+                            }
+                        }
+                    }
+                },
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Failed. Bad post data."
+                    }
+                }
+            }
+        },
+        "/accounts/transaction": {
+            "post": {
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Deposit or Withdrawal money on the account",
+                "requestBody": {
+                    "description": "Transaction object",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/account"
+                            }
+                        }
+                    }
+                },
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Failed. Bad post data."
+                    }
+                }
+            }
+        },
+        "/accounts/statement": {
+            "parameters": [
+                {
+                    "name": "cpf",
+                    "in": "query",
+                    "required": true,
+                    "description": "Date of the statement",
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Fetches all transactions for a given date",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "date",
+                        "required": true,
+                        "description": "Date of the statement",
+                        "schema": {
+                            "$ref": "#/definitions/Client"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "Failed. Cat not found."
+                    }
+                }
+            }
+        },
+        "definitions": {
+            "id": {
+                "properties": {
+                    "uuid": {
+                        "type": "string"
+                    }
+                }
+            },
+            "client": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "default": "Jony Be Good"
+                    },
+                    "cpf": {
+                        "type": "number",
+                        "default": 98765432199
+                    }
+                }
+            },
+            "account": {
+                "type": "object",
+                "properties": {
+                    "cats": {
+                        "type": "object",
+                        "accountNumber": {
+                            "type": "number"
+                        },
+                        "accountAgency": {
+                            "type": "number"
+                        },
+                        "cpf": {
+                            "type": "number"
+                        },
+                        "active": {
+                            "type": "boolean"
+                        },
+                        "balance": {
+                            "type": "number"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
