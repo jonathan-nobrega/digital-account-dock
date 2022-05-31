@@ -31,16 +31,25 @@ router.get('/', async (req, res) => {
     }
 });
 
-/** GET - Read a specific record from Clients AAAARRUMMMAAAAAR */
-router.get('/:clientId', async (req: any, res) => {
+/** GET - Read a specific record from Clients with CPF */
+router.get('/:cpf', async (req: any, res) => {
     try {
-        const { clientId } = req.params
-        const document = await getDoc(doc(db, 'clients', clientId))
-        if (document.exists()) {
-            res.status(200).send(document.data())
+        const { cpf } = req.params
+        let clientId
+        // verifies if client exists
+        const clientQuery = query(collection(db, 'clients'), where('cpf', '==', Number(cpf)));
+        const execute = (await getDocs(clientQuery))
+            .forEach(a => { if (a) clientId = a.id })
+        // if client exists, perform fetch
+        if (clientId) {
+            const data = (await getDoc(doc(db, 'clients', clientId))).data()
+            res.status(200).send({
+                message: `Found Client with CPF ${cpf}`,
+                data: data
+            })
         } else {
             res.status(404).send({
-                message: 'No such document!'
+                message: `There is no Client with cpf ${cpf}.`
             })
         }
     } catch (err) {

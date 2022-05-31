@@ -3,12 +3,12 @@
     "info": {
         "version": "1.0.0",
         "title": "DOCK Challenge | Digital Account",
-        "description": "This is a simple CRUD API application made with Express and documented with Swagger."
-    },
-    "contact": {
-        "name": "Jonathan Moraes",
-        "url": "https://github.com/moraesjon/",
-        "email": "eng.jonathan.moraes@gmail.com"
+        "description": "This is a simple CRUD API application made with Express, TypeScript and documented with Swagger.",
+        "contact": {
+            "name": "Jonathan Moraes",
+            "url": "https://moraesjon.github.io/cv-my-website/",
+            "email": "eng.jonathan.moraes@gmail.com"
+        }
     },
     "servers": [
         {
@@ -56,7 +56,11 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/definitions/client"
+                                "$ref": "#/definitions/Client"
+                            },
+                            "example": {
+                                "name": "Maria",
+                                "cpf": 45678912345
                             }
                         }
                     }
@@ -75,15 +79,6 @@
             }
         },
         "/clients/{cpf}": {
-            "parameters": [
-                {
-                    "name": "cpf",
-                    "in": "path",
-                    "required": true,
-                    "description": "CPF of the Client",
-                    "type": "number"
-                }
-            ],
             "get": {
                 "tags": [
                     "Clients"
@@ -91,13 +86,11 @@
                 "summary": "Read a specific record from Clients",
                 "parameters": [
                     {
+                        "name": "cpf",
                         "in": "path",
-                        "name": "id",
                         "required": true,
-                        "description": "CPF",
-                        "schema": {
-                            "$ref": "#/definitions/Client"
-                        }
+                        "description": "CPF of the Client",
+                        "type": "number"
                     }
                 ],
                 "responses": {
@@ -302,49 +295,58 @@
                     }
                 }
             }
-        },
-        "definitions": {
-            "id": {
-                "properties": {
-                    "uuid": {
-                        "type": "string"
-                    }
+        }
+    },
+    "definitions": {
+        "id": {
+            "properties": {
+                "uuid": {
+                    "type": "string"
                 }
-            },
-            "client": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "default": "Jony Be Good"
+            }
+        },
+        "Client": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "cpf": {
+                    "type": "number"
+                }
+            }
+        },
+        "account": {
+            "type": "object",
+            "properties": {
+                "cats": {
+                    "type": "object",
+                    "accountNumber": {
+                        "type": "number"
+                    },
+                    "accountAgency": {
+                        "type": "number"
                     },
                     "cpf": {
-                        "type": "number",
-                        "default": 98765432199
+                        "type": "number"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "balance": {
+                        "type": "number"
                     }
                 }
-            },
-            "account": {
-                "type": "object",
-                "properties": {
-                    "cats": {
-                        "type": "object",
-                        "accountNumber": {
-                            "type": "number"
-                        },
-                        "accountAgency": {
-                            "type": "number"
-                        },
-                        "cpf": {
-                            "type": "number"
-                        },
-                        "active": {
-                            "type": "boolean"
-                        },
-                        "balance": {
-                            "type": "number"
-                        }
-                    }
+            }
+        }
+    },
+    "components": {
+        "examples": {
+            "newClient": {
+                "summary": "some text",
+                "value": {
+                    "name": "Maria",
+                    "cpf": 45678912345
                 }
             }
         }
