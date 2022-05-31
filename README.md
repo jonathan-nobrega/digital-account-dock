@@ -14,6 +14,10 @@ Our mission is to build a new digital Dock account for our customers to use thro
 ```
 git clone https://github.com/moraesjon/digital-account-dock.git
 ```
+* Open project folder
+```
+cd digital-account-dock
+```
 * Install all dependencies using npm
 ```
 npm install
