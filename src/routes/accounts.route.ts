@@ -94,13 +94,13 @@ router.post('/transaction', async (req: { body: transactionInterface }, res) => 
             // Validate if withdraw is possible
             if ((withdraws + Number(amount)) >= 2001) {
                 return res.status(401).send({
-                    message: 'Unouthorized withdrawl: Daily limit is $2000.',
+                    message: 'Unauthorized withdrawl: Daily limit is $2000.',
                     balance: balance
                 })
             }
             if (Number(amount) > balance) {
                 return res.status(401).send({
-                    message: `Unouthorized withdrawl: Insufficient funds`,
+                    message: `Unauthorized withdrawl: Insufficient funds`,
                     balance: balance
                 })
             } else { // Perform withdraw
@@ -132,9 +132,9 @@ router.post('/transaction', async (req: { body: transactionInterface }, res) => 
 });
 
 /** GET - Prints Daily (Ex: 25-12-2022) bank statement */
-router.get('/statement', async (req, res) => {
+router.get('/statement/:date', async (req, res) => {
     try {
-        const { date } = req.query
+        const { date } = req.params
         console.log(date)
         // if (date == undefined && month == undefined) {
         if (date == undefined) {

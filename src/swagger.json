@@ -103,19 +103,17 @@
                 }
             },
             "delete": {
-                "summary": "Delete a Client with its CPF",
+                "summary": "Deletes a Client with its CPF",
                 "tags": [
                     "Clients"
                 ],
                 "parameters": [
                     {
-                        "in": "path",
                         "name": "cpf",
+                        "in": "path",
                         "required": true,
-                        "description": "Delete Client",
-                        "schema": {
-                            "$ref": "#/definitions/Client"
-                        }
+                        "description": "CPF of the Client",
+                        "type": "number"
                     }
                 ],
                 "responses": {
@@ -147,14 +145,18 @@
                 "tags": [
                     "Accounts"
                 ],
-                "summary": "Create an Account",
+                "summary": "Create an Account with random Agency and Account numbers",
                 "requestBody": {
-                    "description": "Account object Object",
+                    "description": "Account Object",
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/definitions/account"
+                                "$ref": "#/definitions/Account"
+                            },
+                            "example": {
+                                "cpf": 45678912345,
+                                "balance": 500
                             }
                         }
                     }
@@ -172,21 +174,25 @@
                 }
             },
             "delete": {
-                "summary": "Delete an Account",
+                "summary": "Delete an Account using Agency and Account numbers",
                 "tags": [
                     "Accounts"
                 ],
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "cpf",
-                        "required": true,
-                        "description": "Delete Client",
-                        "schema": {
-                            "$ref": "#/definitions/Client"
+                "requestBody": {
+                    "description": "Account Object",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/Account"
+                            },
+                            "example": {
+                                "accountNumber": 5852,
+                                "accountAgency": 487
+                            }
                         }
                     }
-                ],
+                },
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -207,12 +213,17 @@
                 ],
                 "summary": "Activate or inactivate an account",
                 "requestBody": {
-                    "description": "Account object Object",
+                    "description": "Account Object. Default 'active' value is true",
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/definitions/account"
+                                "$ref": "#/definitions/Account"
+                            },
+                            "example": {
+                                "accountNumber": 2917,
+                                "accountAgency": 309,
+                                "active": false
                             }
                         }
                     }
@@ -237,12 +248,18 @@
                 ],
                 "summary": "Deposit or Withdrawal money on the account",
                 "requestBody": {
-                    "description": "Transaction object",
+                    "description": "Request to 'deposit' or 'withdrawal' money from the account",
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/definitions/account"
+                                "$ref": "#/definitions/Transaction"
+                            },
+                            "example": {
+                                "accountNumber": 2917,
+                                "accountAgency": 309,
+                                "amount": 50,
+                                "type": "withdrawal"
                             }
                         }
                     }
@@ -260,16 +277,7 @@
                 }
             }
         },
-        "/accounts/statement": {
-            "parameters": [
-                {
-                    "name": "cpf",
-                    "in": "query",
-                    "required": true,
-                    "description": "Date of the statement",
-                    "type": "string"
-                }
-            ],
+        "/accounts/statement/{date}": {
             "get": {
                 "tags": [
                     "Accounts"
@@ -277,13 +285,10 @@
                 "summary": "Fetches all transactions for a given date",
                 "parameters": [
                     {
-                        "in": "query",
+                        "in": "path",
                         "name": "date",
                         "required": true,
-                        "description": "Date of the statement",
-                        "schema": {
-                            "$ref": "#/definitions/Client"
-                        }
+                        "description": "Date of the statement"
                     }
                 ],
                 "responses": {
@@ -298,13 +303,6 @@
         }
     },
     "definitions": {
-        "id": {
-            "properties": {
-                "uuid": {
-                    "type": "string"
-                }
-            }
-        },
         "Client": {
             "type": "object",
             "properties": {
@@ -316,37 +314,47 @@
                 }
             }
         },
-        "account": {
+        "Account": {
             "type": "object",
             "properties": {
-                "cats": {
-                    "type": "object",
-                    "accountNumber": {
-                        "type": "number"
-                    },
-                    "accountAgency": {
-                        "type": "number"
-                    },
-                    "cpf": {
-                        "type": "number"
-                    },
-                    "active": {
-                        "type": "boolean"
-                    },
-                    "balance": {
-                        "type": "number"
-                    }
+                "accountNumber": {
+                    "type": "number"
+                },
+                "accountAgency": {
+                    "type": "number"
+                },
+                "cpf": {
+                    "type": "number"
+                },
+                "active": {
+                    "type": "boolean"
+                },
+                "balance": {
+                    "type": "number"
                 }
             }
-        }
-    },
-    "components": {
-        "examples": {
-            "newClient": {
-                "summary": "some text",
-                "value": {
-                    "name": "Maria",
-                    "cpf": 45678912345
+        },
+        "Transactions": {
+            "type": "object",
+            "properties": {
+                "accountNumber": {
+                    "type": "number"
+                },
+                "accountAgency": {
+                    "type": "number"
+                },
+                "amount": {
+                    "type": "number"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "withdrawl",
+                        "deposit"
+                    ]
                 }
             }
         }
