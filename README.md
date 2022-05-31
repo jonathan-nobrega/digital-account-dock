@@ -10,11 +10,11 @@ Our mission is to build a new digital Dock account for our customers to use thro
 
 ### Installing
 
-* How/where to download your program
+* Clone the project into your machine
 ```
 git clone https://github.com/moraesjon/digital-account-dock.git
 ```
-* How/where to download your program
+* Install all dependencies using npm
 ```
 npm install
 ```
